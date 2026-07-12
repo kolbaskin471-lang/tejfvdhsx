@@ -56,8 +56,10 @@ async def start_order(
 
 Пример:
 150000
+
 или
-от 100 до 150 тысяч
+
+100-150 тысяч
         """
     )
 
@@ -78,7 +80,7 @@ async def get_budget(
         """
 Отлично.
 
-Теперь выберите назначение компьютера:
+Выберите назначение компьютера:
         """,
         reply_markup=purpose_menu()
     )
@@ -91,12 +93,10 @@ async def choose_purpose(
 ):
 
     purpose_names = {
-
         "purpose_games": "Игры",
         "purpose_editing": "Монтаж",
         "purpose_work": "Работа",
         "purpose_ai": "3D / ИИ"
-
     }
 
     purpose = purpose_names.get(callback.data)
@@ -127,12 +127,13 @@ async def get_city(
     order = orders[user_id]
 
 
-    username = message.from_user.username
+    if message.from_user.username:
 
-    if username:
-        telegram = f"@{username}"
+        username = "@" + message.from_user.username
+
     else:
-        telegram = "Username отсутствует"
+
+        username = "Username отсутствует"
 
 
     admin_id = 7911808598
@@ -160,7 +161,7 @@ async def get_city(
 
 
 Telegram:
-{telegram}
+{username}
 
 
 Бюджет:
