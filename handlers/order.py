@@ -41,10 +41,7 @@ def purpose_menu():
 
 
 @router.callback_query(lambda c: c.data == "order")
-async def start_order(
-    callback: CallbackQuery,
-    state: FSMContext
-):
+async def start_order(callback: CallbackQuery, state: FSMContext):
 
     await state.set_state(OrderState.budget)
 
@@ -56,19 +53,14 @@ async def start_order(
 
 Пример:
 150000
-
 или
-
 100-150 тысяч
         """
     )
 
 
 @router.message(OrderState.budget)
-async def get_budget(
-    message: Message,
-    state: FSMContext
-):
+async def get_budget(message: Message, state: FSMContext):
 
     orders[message.from_user.id] = {
         "budget": message.text
@@ -87,18 +79,85 @@ async def get_budget(
 
 
 @router.callback_query(lambda c: c.data.startswith("purpose_"))
-async def choose_purpose(
-    callback: CallbackQuery,
-    state: FSMContext
-):
+async def choose_purpose(callback: CallbackQuery, state: FSMContext):
 
-    purpose_names = {
+    purposes = {
         "purpose_games": "Игры",
         "purpose_editing": "Монтаж",
         "purpose_work": "Работа",
         "purpose_ai": "3D / ИИ"
     }
 
-    purpose = purpose_names.get(callback.data)
+    purpose = purposes.get(callback.data)
+
+    orders[callback.from_user.id]["purpose"] = purpose
+
+    await state.set_state(OrderState.city)
+
+    await callback.message.edit_text(
+        """
+Отлично.
+
+Теперь напишите ваш город.
+        """
+    )
+
+
+@router.message(OrderState.city)
+async def get_city(message: Message, state: FSMContext):
+
+    user_id = message.from_user.id
 
     orders[user_id]["city"] = message.text
+
+    order = orders[user_id]
+
+    if message.from_user.username:
+        username = "@" + message.from_user.username
+    else:
+        username = "Нет username"
+
+
+    admin_id = 7911808598
+
+
+    await message.answer(
+        """
+Спасибо.
+
+Ваша заявка отправлена Ze.Tech.
+
+С вами свяжутся в ближайшее время.
+        """
+    )
+
+
+    await message.bot.send_message(
+        admin_id,
+        f"""
+Новый заказ Ze.Tech
+
+
+Клиент:
+{message.from_user.full_name}
+
+
+Telegram:
+{username}
+
+
+Бюджет:
+{order['budget']}
+
+
+Назначение:
+{order['purpose']}
+
+
+Город:
+{order['city']}
+        """
+    )
+
+
+    await state.clear()
