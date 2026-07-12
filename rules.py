@@ -69,3 +69,28 @@ async def rules(callback: CallbackQuery):
         text,
         reply_markup=back_button()
     )
+    @router.callback_query(lambda c: c.data == "back")
+async def back(callback: CallbackQuery):
+
+    text = """
+⚡ Привет, ты попал в главное меню Ze.Tech
+
+Я занимаюсь сборкой ПК на заказ.
+
+Доставка ПК осуществляется почти по всей территории РФ службами:
+
+📦 CDEK
+📮 Почта России
+🛒 WB Track
+🟣 Ozon Track
+🔥 Avito доставка
+
+Ознакомься с разделами ниже и отписывай мне!
+"""
+
+    from keyboards.menu import main_menu
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=main_menu()
+    )
