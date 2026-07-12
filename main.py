@@ -7,12 +7,14 @@ from aiogram.types import Message
 from config import 8990836319:AAGzQBgcKtd-i1bGe8OJM9c6SfxP3TNx6k8
 from keyboards.menu import main_menu
 from handlers.rules import router as rules_router
+from handlers.order import router as order_router
 
 bot = Bot(token=BOT_TOKEN)
 
 dp = Dispatcher()
 
 dp.include_router(rules_router)
+dp.include_router(order_router)
 
 
 @dp.message(CommandStart())
