@@ -101,4 +101,4 @@ async def choose_purpose(
 
     purpose = purpose_names.get(callback.data)
 
-    orders[
+    orders[user_id]["city"] = message.text
