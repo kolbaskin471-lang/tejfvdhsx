@@ -4,7 +4,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-from config import 8990836319:AAGzQBgcKtd-i1bGe8OJM9c6SfxP3TNx6k8
+from config import BOT_TOKEN
+from keyboards.menu import main_menu
 
 
 bot = Bot(token=BOT_TOKEN)
@@ -14,8 +15,8 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def start(message: Message):
-    await message.answer(
-        """
+
+    text = """
 ⚡ Привет, ты попал в главное меню Ze.Tech
 
 Я занимаюсь сборкой ПК на заказ.
@@ -29,11 +30,16 @@ async def start(message: Message):
 🔥 Avito доставка
 
 Ознакомься с разделами ниже и отписывай мне!
-        """
+"""
+
+    await message.answer(
+        text,
+        reply_markup=main_menu()
     )
 
 
 async def main():
+
     await dp.start_polling(bot)
 
 
