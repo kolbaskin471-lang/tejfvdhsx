@@ -1,181 +1,87 @@
 from aiogram import Router
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.fsm.context import FSMContext
 
-from states import OrderState
+from menu import main_menu
 
 
 router = Router()
 
-orders = {}
 
-
-def purpose_menu():
+def back_button():
 
     kb = InlineKeyboardBuilder()
 
     kb.button(
-        text="Игры",
-        callback_data="purpose_games"
+        text="Назад",
+        callback_data="back"
     )
-
-    kb.button(
-        text="Монтаж",
-        callback_data="purpose_editing"
-    )
-
-    kb.button(
-        text="Работа",
-        callback_data="purpose_work"
-    )
-
-    kb.button(
-        text="3D / ИИ",
-        callback_data="purpose_ai"
-    )
-
-    kb.adjust(1)
 
     return kb.as_markup()
 
 
-@router.callback_query(lambda c: c.data == "order")
-async def start_order(
-    callback: CallbackQuery,
-    state: FSMContext
-):
+@router.callback_query(lambda c: c.data == "rules")
+async def rules(callback: CallbackQuery):
 
-    await state.set_state(OrderState.budget)
+    text = """
+Условия услуг Ze.Tech
 
-    await callback.message.edit_text(
-        """
-Заказ сборки Ze.Tech
+1. Осуществление гарантии
 
-Напишите ваш бюджет на ПК.
+1.1. Причиной для возврата является только веская причина.
+Не понравилось и подобное не является причиной.
 
-Пример:
-150000
-
-или
-
-100-150 тысяч
-        """
-    )
+1.2. Возврат товара может быть полным или частичным,
+в зависимости от ситуации.
 
 
-@router.message(OrderState.budget)
-async def get_budget(
-    message: Message,
-    state: FSMContext
-):
+2. Гарантия
 
-    orders[message.from_user.id] = {
-        "budget": message.text
-    }
+2.1. Гарантийный срок на Б/У комплектующие составляет 14 дней
+с момента получения.
 
-    await state.set_state(OrderState.purpose)
+2.2. В течение 180 дней можно вернуть неработающее комплектующее
+с полным возвратом средств или заменить его.
 
-    await message.answer(
-        """
-Отлично.
-
-Выберите назначение компьютера:
-        """,
-        reply_markup=purpose_menu()
-    )
+2.3. Если поломка произошла по вине заказчика,
+возврат невозможен.
 
 
-@router.callback_query(lambda c: c.data.startswith("purpose_"))
-async def choose_purpose(
-    callback: CallbackQuery,
-    state: FSMContext
-):
+3. Оплата
 
-    purpose_names = {
-        "purpose_games": "Игры",
-        "purpose_editing": "Монтаж",
-        "purpose_work": "Работа",
-        "purpose_ai": "3D / ИИ"
-    }
+3.1. Оплата ПК под заказ происходит полной предоплатой.
 
-    purpose = purpose_names.get(callback.data)
+3.2. После оплаты отказ невозможен.
 
-    orders[callback.from_user.id]["purpose"] = purpose
+3.3. При покупке готового ПК возможна оплата при получении
+через доставку Ozon.
 
-    await state.set_state(OrderState.city)
+
+4. Процесс сборки
+
+4.1. Во время сборки специалист поддерживает связь
+и уведомляет об изменениях.
+
+4.2. Можно задавать любые вопросы по сборке.
+
+4.3. После завершения сборки отправляются фотографии
+готового ПК.
+
+
+Оплачивая заказ, вы подтверждаете согласие
+с данными условиями.
+"""
 
     await callback.message.edit_text(
-        """
-Отлично.
-
-Теперь напишите ваш город.
-        """
+        text,
+        reply_markup=back_button()
     )
 
 
-@router.message(OrderState.city)
-async def get_city(
-    message: Message,
-    state: FSMContext
-):
+@router.callback_query(lambda c: c.data == "back")
+async def back(callback: CallbackQuery):
 
-    user_id = message.from_user.id
-
-    orders[user_id]["city"] = message.text
-
-    order = orders[user_id]
-
-
-    if message.from_user.username:
-
-        username = "@" + message.from_user.username
-
-    else:
-
-        username = "Username отсутствует"
-
-
-    admin_id = 7911808598
-
-
-    await message.answer(
-        """
-Спасибо.
-
-Ваша заявка отправлена специалисту Ze.Tech.
-
-С вами свяжутся в ближайшее время.
-        """
+    await callback.message.edit_text(
+        "Главное меню Ze.Tech",
+        reply_markup=main_menu()
     )
-
-
-    await message.bot.send_message(
-        admin_id,
-        f"""
-Новый заказ Ze.Tech
-
-
-Клиент:
-{message.from_user.full_name}
-
-
-Telegram:
-{username}
-
-
-Бюджет:
-{order['budget']}
-
-
-Назначение:
-{order['purpose']}
-
-
-Город:
-{order['city']}
-        """
-    )
-
-
-    await state.clear()
