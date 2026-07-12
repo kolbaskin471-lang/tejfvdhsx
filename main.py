@@ -5,6 +5,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 
 from config import BOT_TOKEN
+from menu import main_menu
 
 from handlers.rules import router as rules_router
 from handlers.order import router as order_router
