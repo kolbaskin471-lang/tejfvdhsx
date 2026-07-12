@@ -4,13 +4,15 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-from config import BOT_TOKEN
+from config import 8990836319:AAGzQBgcKtd-i1bGe8OJM9c6SfxP3TNx6k8
 from keyboards.menu import main_menu
-
+from handlers.rules import router as rules_router
 
 bot = Bot(token=BOT_TOKEN)
 
 dp = Dispatcher()
+
+dp.include_router(rules_router)
 
 
 @dp.message(CommandStart())
