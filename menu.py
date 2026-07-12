@@ -27,7 +27,7 @@ def main_menu():
 
     kb.button(
         text="🖥 Заказать сборку",
-        url="https://t.me/pawawa420"
+        callback_data="order"
     )
 
     kb.adjust(1)
