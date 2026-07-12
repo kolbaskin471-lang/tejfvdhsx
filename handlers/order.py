@@ -16,22 +16,22 @@ def purpose_menu():
     kb = InlineKeyboardBuilder()
 
     kb.button(
-        text="Игры",
+        text="🎮 Игры",
         callback_data="purpose_games"
     )
 
     kb.button(
-        text="Монтаж",
+        text="🎬 Монтаж",
         callback_data="purpose_editing"
     )
 
     kb.button(
-        text="Работа",
+        text="💼 Работа",
         callback_data="purpose_work"
     )
 
     kb.button(
-        text="3D / ИИ",
+        text="🤖 3D / ИИ",
         callback_data="purpose_ai"
     )
 
@@ -40,124 +40,230 @@ def purpose_menu():
     return kb.as_markup()
 
 
+
 @router.callback_query(lambda c: c.data == "order")
-async def start_order(callback: CallbackQuery, state: FSMContext):
+async def start_order(
+    callback: CallbackQuery,
+    state: FSMContext
+):
 
     await state.set_state(OrderState.budget)
 
     await callback.message.edit_text(
         """
-Заказ сборки Ze.Tech
+🖥 Заказ сборки Ze.Tech
 
-Напишите ваш бюджет на ПК.
+💰 Напишите ваш бюджет на ПК.
+
+Минимальный бюджет:
+35000 ₽
 
 Пример:
-150000
+50000
 или
-100-150 тысяч
+150000 ₽
         """
     )
 
 
+
 @router.message(OrderState.budget)
-async def get_budget(message: Message, state: FSMContext):
+async def get_budget(
+    message: Message,
+    state: FSMContext
+):
+
+    text = (
+        message.text
+        .replace("₽", "")
+        .replace(" ", "")
+        .replace(",", "")
+    )
+
+
+    try:
+
+        budget = int(text)
+
+    except ValueError:
+
+        await message.answer(
+            """
+❌ Не удалось определить сумму.
+
+Введите бюджет цифрами.
+
+Пример:
+50000
+            """
+        )
+
+        return
+
+
+
+    if budget < 35000:
+
+        await message.answer(
+            """
+❌ Минимальный бюджет сборки Ze.Tech:
+
+35000 ₽
+
+Введите сумму заново.
+            """
+        )
+
+        return
+
+
 
     orders[message.from_user.id] = {
-        "budget": message.text
+
+        "budget": f"{budget} ₽"
+
     }
+
+
 
     await state.set_state(OrderState.purpose)
 
+
     await message.answer(
         """
-Отлично.
+✅ Отлично!
 
-Выберите назначение компьютера:
+Теперь выберите назначение ПК:
         """,
         reply_markup=purpose_menu()
     )
 
 
-@router.callback_query(lambda c: c.data.startswith("purpose_"))
-async def choose_purpose(callback: CallbackQuery, state: FSMContext):
 
-    purposes = {
-        "purpose_games": "Игры",
-        "purpose_editing": "Монтаж",
-        "purpose_work": "Работа",
-        "purpose_ai": "3D / ИИ"
+@router.callback_query(lambda c: c.data.startswith("purpose_"))
+async def choose_purpose(
+    callback: CallbackQuery,
+    state: FSMContext
+):
+
+
+    purpose_names = {
+
+        "purpose_games": "🎮 Игры",
+
+        "purpose_editing": "🎬 Монтаж",
+
+        "purpose_work": "💼 Работа",
+
+        "purpose_ai": "🤖 3D / ИИ"
+
     }
 
-    purpose = purposes.get(callback.data)
+
+
+    purpose = purpose_names.get(callback.data)
+
+
 
     orders[callback.from_user.id]["purpose"] = purpose
 
+
+
     await state.set_state(OrderState.city)
+
+
 
     await callback.message.edit_text(
         """
-Отлично.
-
-Теперь напишите ваш город.
+📍 Теперь напишите ваш город.
         """
     )
 
 
+
 @router.message(OrderState.city)
-async def get_city(message: Message, state: FSMContext):
+async def get_city(
+    message: Message,
+    state: FSMContext
+):
+
 
     user_id = message.from_user.id
 
+
+
     orders[user_id]["city"] = message.text
+
+
 
     order = orders[user_id]
 
+
+
     if message.from_user.username:
-        username = "@" + message.from_user.username
+
+        username = f"@{message.from_user.username}"
+
     else:
-        username = "Нет username"
+
+        username = "❌ Username отсутствует"
+
 
 
     admin_id = 7911808598
 
 
+
     await message.answer(
         """
-Спасибо.
+✅ Спасибо!
 
-Ваша заявка отправлена Ze.Tech.
+Ваша заявка отправлена в Ze.Tech.
 
-С вами свяжутся в ближайшее время.
+⚡ С вами свяжутся в ближайшее время.
         """
     )
+
 
 
     await message.bot.send_message(
+
         admin_id,
+
         f"""
-Новый заказ Ze.Tech
+🔥🔥 Новый заказ Ze.Tech 🔥🔥
 
 
-Клиент:
+👤 Клиент:
+
 {message.from_user.full_name}
 
 
-Telegram:
+📱 Telegram:
+
 {username}
 
 
-Бюджет:
+💰 Бюджет:
+
 {order['budget']}
 
 
-Назначение:
+🎯 Назначение:
+
 {order['purpose']}
 
 
-Город:
+📍 Город:
+
 {order['city']}
-        """
+
+
+⚡ Ze.Tech
+"""
+
     )
+
 
 
     await state.clear()
