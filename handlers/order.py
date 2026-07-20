@@ -155,7 +155,7 @@ async def get_city(message: Message, state: FSMContext):
         """
 ✅ Спасибо!
 
-Ваша заявка отправлена в ze.tech.
+Ваша заявка отправлена в zetech.
 
 ⚡ С вами свяжутся в ближайшее время.
         """
@@ -163,7 +163,7 @@ async def get_city(message: Message, state: FSMContext):
 
     await message.bot.send_message(
         admin_id,
-        f"""🔥 Новый заказ ze.tech
+        f"""🔥 Новый заказ zetech
 👤 Клиент: {message.from_user.full_name}
 📱 Telegram: {username}
 💰 Бюджет: {order['budget']}
