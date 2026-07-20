@@ -22,7 +22,7 @@ dp.include_router(order_router)
 async def start(message: Message):
 
     text = """
-⚡ Привет, ты попал в главное меню ze.tech
+⚡ Привет, ты попал в главное меню zetech
 
 Я занимаюсь сборкой ПК на заказ.
 
