@@ -149,7 +149,7 @@ async def get_city(message: Message, state: FSMContext):
     else:
         username = "❌ Username отсутствует"
 
-    admin_id = 7911808598
+    admin_id = 5004002150
 
     await message.answer(
         """
