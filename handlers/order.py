@@ -47,7 +47,7 @@ async def start_order(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.edit_text(
         """
-🖥 Заказ сборки ze.tech
+🖥 Заказ сборки zetech
 
 💰 Напишите ваш бюджет на ПК.
 
